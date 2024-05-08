@@ -1,0 +1,47 @@
+.nav-header {
+  .navbar-brand {
+    display: flex;
+
+    img {
+      animation: app-logo infinite 20s linear;
+    }
+
+    @keyframes app-logo {
+      from {
+        transform: rolate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+    .brand-name {
+      margin-left: 5px;
+      color: #61dafb !important;
+      font-weight: 500;
+    }
+  }
+
+  .bg-header {
+    background-color: #20232a;
+  }
+  a,
+  .nav-link {
+    color: white !important;
+
+    &:hover {
+      color: #61dafb !important;
+    }
+  }
+
+  .nav-link {
+    &.active {
+      color: #61dafb !important;
+    }
+  }
+
+  .dropdown-menu {
+    a {
+      color: #212529 !important;
+    }
+  }
+}
