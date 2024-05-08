@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom"; // Co
 import NavHeader from "./components/Navigation/NavHeader";
 import Task from "./components/Task/Task";
 import { ToastContainer } from "react-toastify";
+import User from "./components/User/User";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
             Home
           </Route>
           <Route path="/task" Component={Task}></Route>
+          <Route path="/user" Component={User}></Route>
           <Route path="*">404 NOT FOUND</Route>
         </Routes>
       </Router>

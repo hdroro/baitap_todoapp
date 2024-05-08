@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./Task.scss";
 import "react-toastify/dist/ReactToastify.css";
 import { toast } from "react-toastify";
+import { createNewTask } from "../../services/taskService";
+import { fetchAllUsers } from "../../services/userService";
 
 function CreateTask() {
   const [title, setTitle] = useState("");
@@ -9,6 +11,22 @@ function CreateTask() {
 
   const [assgineeSelected, setAssgigneeSelected] = useState("");
   // const [statusSelected, setStatusSelected] = useState("");
+
+  const [listUsers, setListUsers] = useState([]);
+
+  useEffect(() => {
+    fetchAllUser();
+  }, []);
+
+  const fetchAllUser = async () => {
+    const data = await fetchAllUsers();
+    console.log("datadata", data);
+    if (data && +data.EC === 0) {
+      setListUsers(data.DT);
+    } else {
+      toast.error(data.EM);
+    }
+  };
 
   const defaultValidInput = {
     isValidTitle: true,
@@ -58,14 +76,17 @@ function CreateTask() {
     return true;
   };
 
-  const handleCreateTask = () => {
+  const handleCreateTask = async () => {
     var checkValid = isValidInputs();
 
     if (checkValid) {
-      console.log("title", title);
-      console.log("content", content);
-      console.log("assignee", assgineeSelected);
-      // console.log("status", statusSelected);
+      let response = await createNewTask(title, content, assgineeSelected);
+      if (response && +response.EC === 0) {
+        toast.success(response.EM);
+        fetchAllUser();
+      } else {
+        toast.error(response.EM);
+      }
     }
   };
   return (
@@ -100,9 +121,11 @@ function CreateTask() {
               value={assgineeSelected}
             >
               <option defaultValue>--Select option--</option>
-              <option value="1">hdiem</option>
-              <option value="2">phuongha</option>
-              <option value="3">tson</option>
+              {listUsers &&
+                listUsers.length > 0 &&
+                listUsers.map((item, index) => (
+                  <option value={item._id}>{item.username}</option>
+                ))}
             </select>
           </div>
         </div>

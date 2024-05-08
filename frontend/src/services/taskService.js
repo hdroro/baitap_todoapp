@@ -20,7 +20,7 @@ const createNewTask = (title, content, assignee, state) => {
 };
 
 const editTask = (idTask, title, content, assignee, state) => {
-  return axios.put("api/add-task", {
+  return axios.put("api/edit-task", {
     idTask,
     title,
     content,
@@ -31,7 +31,7 @@ const editTask = (idTask, title, content, assignee, state) => {
 
 const deleteTask = (idTask) => {
   return axios.delete("/api/delete-task", {
-    data: { id: idTask },
+    data: { idTask: idTask },
   });
 };
 

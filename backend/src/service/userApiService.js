@@ -1,3 +1,4 @@
+const { Task } = require("../models/taskModel");
 const { User } = require("../models/userModel");
 require("dotenv").config();
 
@@ -20,19 +21,28 @@ const checkUsernameExist = async (username) => {
 async function getAllUsers() {
   try {
     let users = await User.find();
-    if (users) {
-      return {
-        EM: "get data success",
-        EC: 0,
-        DT: users,
-      };
-    } else {
-      return {
-        EM: "something wrongs with service",
-        EC: 1,
-        DT: [],
-      };
-    }
+    let usersWithTasks = await Promise.all(
+      users.map(async (user) => {
+        let taskIds = user.tasks.map((t) => t.toString());
+        let tasks = await Promise.all(
+          taskIds.map(async (taskId) => {
+            return await Task.findById(taskId);
+          })
+        );
+        return {
+          id: user._id,
+          username: user.username,
+          name: user.name,
+          tasks: tasks,
+        };
+      })
+    );
+
+    return {
+      EM: "get data success",
+      EC: 0,
+      DT: usersWithTasks,
+    };
   } catch (error) {
     console.log(error);
     return {

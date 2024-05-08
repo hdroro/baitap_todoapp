@@ -1,34 +1,28 @@
 import ReactPaginate from "react-paginate";
-import ModalEdit from "./ModalTask/ModalEdit";
+import { fetchTaskPagniation } from "../../services/taskService";
 import { useEffect, useState } from "react";
-import ModalDelete from "./ModalTask/ModalDelete";
-import { fetchTaskPagniation, deleteTask } from "../../services/taskService";
-import { toast } from "react-toastify";
+import { fetchAllUsers } from "../../services/userService";
 
-function TaskList() {
+function User() {
   const [isShowModalEdit, setIsShowModalEdit] = useState(false);
   const [dataModal, setDataModal] = useState({});
   const [searchValue, setSearchValue] = useState("");
 
   const [isShowModalDelete, setIsShowModalDelete] = useState(false);
 
-  const [listTasks, setListTasks] = useState([]);
+  const [listUsers, setListUsers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [currentLimit, setCurrentLimit] = useState(2);
   const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
-    fetchTasks();
+    fetchUsers();
   }, [currentPage, isShowModalDelete, isShowModalEdit, searchValue]);
 
-  const fetchTasks = async () => {
-    let response = await fetchTaskPagniation(
-      currentPage,
-      currentLimit,
-      searchValue
-    );
+  const fetchUsers = async () => {
+    let response = await fetchAllUsers();
     if (response && response.EC === 0) {
-      setListTasks(response.DT.data);
+      setListUsers(response.DT);
       setTotalPages(response.DT.totalPages);
     }
   };
@@ -68,21 +62,12 @@ function TaskList() {
     setIsShowModalDelete(true);
     setDataModal(item);
   };
-  const handleConfirmDelete = async () => {
-    let data = await deleteTask(dataModal._id);
-    console.log("data", data);
-    if (data && +data.EC === 0) {
-      toast.success(data.EM);
-      await fetchTaskPagniation(currentPage, currentLimit, searchValue);
-      setIsShowModalDelete(false);
-    } else {
-      toast.error(data.EM);
-    }
-  };
+
+  console.log(listUsers);
 
   return (
     <div className="container">
-      <h4>Task List</h4>
+      <h4 className="mt-3">Users List</h4>
       <div className="col-12 col-sm-3 mb-3 float-end">
         <div className="d-flex gap-2">
           <input
@@ -90,8 +75,8 @@ function TaskList() {
             className={`form-control`}
             id="search"
             placeholder="Enter title to search ..."
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
+            // value={searchValue}
+            // onChange={(e) => setSearchValue(e.target.value)}
           />
           {/* <button className="btn btn-primary">Search</button> */}
         </div>
@@ -100,23 +85,33 @@ function TaskList() {
         <thead>
           <tr>
             <th scope="col">#</th>
-            <th scope="col">Title</th>
-            <th scope="col">Assignee</th>
-            <th scope="col">Status</th>
+            <th scope="col">Name</th>
+            <th scope="col">Username</th>
+            <th scope="col">Total Tasks</th>
             <th scope="col">Actions</th>
           </tr>
         </thead>
         <tbody>
-          {listTasks &&
-            listTasks.length &&
-            listTasks.map((item, index) => (
+          {listUsers &&
+            listUsers.length &&
+            listUsers.map((item, index) => (
               <tr key={index}>
                 <th scope="row">
                   {(currentPage - 1) * currentLimit + index + 1}
                 </th>
-                <td>{item.title}</td>
-                <td>{item?.assignee?.username || "None"}</td>
-                <td>{item.state}</td>
+                <td>{item.name}</td>
+                <td>{item.username}</td>
+                <td>
+                  {item.tasks.length > 0
+                    ? item.tasks.map((task, idx) => (
+                        <span key={task.id}>
+                          {task.title}
+                          {idx === item.tasks.length - 1 ? null : ","}
+                        </span>
+                      ))
+                    : "None"}
+                </td>
+
                 <td className="d-flex gap-2">
                   <button
                     className="btn btn-warning"
@@ -161,7 +156,7 @@ function TaskList() {
         </div>
       )}
 
-      <ModalEdit
+      {/* <ModalEdit
         isShowModalEdit={isShowModalEdit}
         handleCloseModalEdit={handleCloseModalEdit}
         dataModal={dataModal}
@@ -171,9 +166,9 @@ function TaskList() {
         isShowModalDelete={isShowModalDelete}
         handleCloseModalDelete={handleCloseModalDelete}
         handleConfirmDelete={handleConfirmDelete}
-      />
+      /> */}
     </div>
   );
 }
 
-export default TaskList;
+export default User;

@@ -1,15 +1,33 @@
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import "./Modal.scss";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { fetchAllUsers } from "../../../services/userService";
+import { editTask } from "../../../services/taskService";
 
 function ModalEdit(props) {
+  const data = props.dataModal;
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
   const [assgineeSelected, setAssgigneeSelected] = useState("");
   const [statusSelected, setStatusSelected] = useState("");
+  const [listUsers, setListUsers] = useState([]);
+
+  useEffect(() => {
+    fetchAllUser();
+  }, []);
+
+  const fetchAllUser = async () => {
+    const data = await fetchAllUsers();
+    console.log("datadata", data);
+    if (data && +data.EC === 0) {
+      setListUsers(data.DT);
+    } else {
+      toast.error(data.EM);
+    }
+  };
 
   const defaultValidInput = {
     isValidTitle: true,
@@ -41,14 +59,30 @@ function ModalEdit(props) {
     return true;
   };
 
-  const handleUpdateTask = () => {
+  useEffect(() => {
+    setTitle(data.title);
+    setContent(data.content);
+    setAssgigneeSelected(data?.assignee?._id || null);
+    setStatusSelected(data.state);
+  }, [data]);
+
+  const handleUpdateTask = async () => {
     var checkValid = isValidInputs();
 
     if (checkValid) {
-      console.log("title", title);
-      console.log("content", content);
-      console.log("assignee", assgineeSelected);
-      console.log("status", statusSelected);
+      const response = await editTask(
+        data._id,
+        title,
+        content,
+        assgineeSelected,
+        statusSelected
+      );
+      if (response && +response.EC === 0) {
+        toast.success(response.EM);
+        props.handleCloseModalEdit();
+      } else {
+        toast.error(response.EM);
+      }
     }
   };
   return (
@@ -111,9 +145,11 @@ function ModalEdit(props) {
                     onChange={(e) => setAssgigneeSelected(e.target.value)}
                   >
                     <option defaultValue>--Select option--</option>
-                    <option value="1">hdiem</option>
-                    <option value="2">phuongha</option>
-                    <option value="3">tson</option>
+                    {listUsers &&
+                      listUsers.length > 0 &&
+                      listUsers.map((item, index) => (
+                        <option value={item._id}>{item.username}</option>
+                      ))}
                   </select>
                 </div>
                 <div className="w-50">
@@ -131,9 +167,9 @@ function ModalEdit(props) {
                     onChange={(e) => setStatusSelected(e.target.value)}
                   >
                     <option defaultValue>--Select option--</option>
-                    <option value="1">todo</option>
-                    <option value="2">progress</option>
-                    <option value="3">done</option>
+                    <option value="todo">todo</option>
+                    <option value="progress">progress</option>
+                    <option value="done">done</option>
                   </select>
                 </div>
               </div>

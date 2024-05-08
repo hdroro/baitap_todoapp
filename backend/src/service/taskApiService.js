@@ -46,7 +46,7 @@ async function getTaskPagniation(page = 1, limit = 5, title = "") {
 async function createTask(taskData) {
   try {
     const newTask = new Task(taskData);
-    if (taskData.assignee) {
+    if (taskData?.assignee) {
       const user = await User.findById(taskData.assignee);
       if (!user) {
         return {
@@ -55,17 +55,14 @@ async function createTask(taskData) {
         };
       }
       user.tasks.push(newTask);
-      return {
-        EM: "create task and task assigneed for user successfully",
-        EC: 0,
-        DT: [],
-      };
-    }
+      user.save();
+    } else newTask.assignee = null;
+
     tasksave = await newTask.save();
     return {
       EM: "create only new task successfully",
       EC: 0,
-      DT: [],
+      DT: tasksave,
     };
   } catch (error) {
     console.log(error);
@@ -90,8 +87,8 @@ async function editTask(taskId, taskUpdateData) {
         };
       }
       const taskSwitch = await Task.findById(taskId);
-
-      if (taskSwitch.assignee) {
+      console.log("taskSwitch", taskSwitch);
+      if (taskSwitch?.assignee) {
         const oldUser = await User.findById(taskSwitch.assignee.toString());
         if (oldUser) {
           oldUser.tasks = oldUser.tasks.filter(
@@ -129,7 +126,7 @@ const deleteTask = async (idTask) => {
   try {
     let task = await Task.findById(idTask);
 
-    if (task.assignee) {
+    if (task?.assignee) {
       const taskAssigneed = await User.findById(task.assignee);
       console.log("taskAssigneed", taskAssigneed);
       if (taskAssigneed) {
@@ -138,19 +135,14 @@ const deleteTask = async (idTask) => {
         );
         await taskAssigneed.save();
       }
-      taskDeleted = await Task.findByIdAndDelete(idTask);
-      return {
-        EM: "delete task successfully",
-        EC: 2,
-        DT: taskDeleted,
-      };
-    } else {
-      return {
-        EM: "Task not exist",
-        EC: 2,
-        DT: [],
-      };
     }
+    console.log("idTask", idTask);
+    taskDeleted = await Task.findByIdAndDelete(idTask);
+    return {
+      EM: "delete task successfully",
+      EC: 0,
+      DT: taskDeleted,
+    };
   } catch (error) {
     console.log(error);
     return {

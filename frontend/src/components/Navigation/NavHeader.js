@@ -28,7 +28,7 @@ function NavHeader() {
               <NavLink to="/task" exact className="nav-link">
                 Task
               </NavLink>
-              <NavLink to="/" exact className="nav-link">
+              <NavLink to="/user" exact className="nav-link">
                 User
               </NavLink>
             </Nav>

@@ -40,8 +40,8 @@ const createFunc = async (req, res) => {
 
 const editFunc = async (req, res) => {
   try {
-    console.log("req.body", req.body);
-    let idTask = req.query.idTask;
+    console.log("req.bodyreq.body", req.body);
+    let idTask = req.body.idTask;
     let data = await taskService.editTask(idTask, req.body);
     return res.status(200).json({
       EM: data.EM, //error message
@@ -60,13 +60,15 @@ const editFunc = async (req, res) => {
 
 const deleteFunc = async (req, res) => {
   try {
-    let idTask = req.query.idTask;
-    let data = await taskService.deleteTask(idTask);
-    return res.status(200).json({
-      EM: data.EM, //error message
-      EC: data.EC, // error code
-      DT: data.DT, //data
-    });
+    let idTask = req.body.idTask;
+    if (idTask) {
+      let data = await taskService.deleteTask(idTask);
+      return res.status(200).json({
+        EM: data.EM, //error message
+        EC: data.EC, // error code
+        DT: data.DT, //data
+      });
+    }
   } catch (error) {
     console.log(error);
     return res.status(200).json({
