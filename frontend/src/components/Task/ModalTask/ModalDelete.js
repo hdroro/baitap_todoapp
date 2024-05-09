@@ -10,16 +10,20 @@ function ModalDelete(props) {
     >
       <Modal.Dialog style={{ margin: 0 }}>
         <Modal.Header closeButton>
-          <Modal.Title>Delete task</Modal.Title>
+          <Modal.Title>
+            Delete {props.isDeleteUser ? "user" : "task"}
+          </Modal.Title>
         </Modal.Header>
 
         <Modal.Body>
-          <p>Are you sure to delete this task?</p>
+          <p>
+            Are you sure to delete this {props.isDeleteUser ? "user" : "task"}?
+          </p>
         </Modal.Body>
 
         <Modal.Footer>
           <Button variant="secondary" onClick={props.handleCloseModalDelete}>
-            Cancer
+            Cancel
           </Button>
           <Button variant="primary" onClick={props.handleConfirmDelete}>
             Confirm

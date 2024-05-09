@@ -2,8 +2,13 @@ const taskService = require("../service/taskApiService");
 
 const readFunc = async (req, res) => {
   try {
-    const { page, limit, title } = req.query;
-    let data = await taskService.getTaskPagniation(page, limit, title);
+    const { page, limit, title, progress } = req.query;
+    let data = await taskService.getTaskPagniation(
+      page,
+      limit,
+      title,
+      progress
+    );
     return res.status(200).json({
       EM: data.EM, //error message
       EC: data.EC, // error code
@@ -12,7 +17,7 @@ const readFunc = async (req, res) => {
   } catch (error) {
     console.log(error);
     return res.status(200).json({
-      EM: "error from server", //error message
+      EM: "Error from server", //error message
       EC: "-1", // error code
       DT: "", //data
     });
@@ -21,7 +26,6 @@ const readFunc = async (req, res) => {
 
 const createFunc = async (req, res) => {
   try {
-    console.log("req.body", req.body);
     let data = await taskService.createTask(req.body);
     return res.status(200).json({
       EM: data.EM, //error message
@@ -31,7 +35,7 @@ const createFunc = async (req, res) => {
   } catch (error) {
     console.log(error);
     return res.status(200).json({
-      EM: "error from server", //error message
+      EM: "Error from server", //error message
       EC: "-1", // error code
       DT: "", //data
     });
@@ -40,9 +44,7 @@ const createFunc = async (req, res) => {
 
 const editFunc = async (req, res) => {
   try {
-    console.log("req.bodyreq.body", req.body);
-    let idTask = req.body.idTask;
-    let data = await taskService.editTask(idTask, req.body);
+    let data = await taskService.editTask(req.body);
     return res.status(200).json({
       EM: data.EM, //error message
       EC: data.EC, // error code
@@ -51,7 +53,7 @@ const editFunc = async (req, res) => {
   } catch (error) {
     console.log(error);
     return res.status(200).json({
-      EM: "error from server", //error message
+      EM: "Error from server", //error message
       EC: "-1", // error code
       DT: "", //data
     });
@@ -72,7 +74,7 @@ const deleteFunc = async (req, res) => {
   } catch (error) {
     console.log(error);
     return res.status(200).json({
-      EM: "error from server", //error message
+      EM: "Error from server", //error message
       EC: "-1", // error code
       DT: "", //data
     });

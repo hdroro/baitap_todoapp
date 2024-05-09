@@ -23,7 +23,7 @@ function ModalEdit(props) {
     const data = await fetchAllUsers();
     console.log("datadata", data);
     if (data && +data.EC === 0) {
-      setListUsers(data.DT);
+      setListUsers(data.DT.data);
     } else {
       toast.error(data.EM);
     }
@@ -52,7 +52,7 @@ function ModalEdit(props) {
     }
 
     if (!statusSelected) {
-      toast.error("Task status is required !");
+      toast.error("Task state is required !");
       setObjCheckInput({ ...defaultValidInput, isValidStatus: false });
       return false;
     }
@@ -60,9 +60,10 @@ function ModalEdit(props) {
   };
 
   useEffect(() => {
+    console.log("data", data);
     setTitle(data.title);
     setContent(data.content);
-    setAssgigneeSelected(data?.assignee?._id || null);
+    setAssgigneeSelected(data?.assignee ? data.assignee._id : "0");
     setStatusSelected(data.state);
   }, [data]);
 
@@ -70,6 +71,8 @@ function ModalEdit(props) {
     var checkValid = isValidInputs();
 
     if (checkValid) {
+      console.log("assgineeSelected", assgineeSelected);
+      console.log("statusSelected", statusSelected);
       const response = await editTask(
         data._id,
         title,
@@ -144,7 +147,7 @@ function ModalEdit(props) {
                     value={assgineeSelected}
                     onChange={(e) => setAssgigneeSelected(e.target.value)}
                   >
-                    <option defaultValue>--Select option--</option>
+                    <option value="0">--Select option--</option>
                     {listUsers &&
                       listUsers.length > 0 &&
                       listUsers.map((item, index) => (
@@ -153,7 +156,7 @@ function ModalEdit(props) {
                   </select>
                 </div>
                 <div className="w-50">
-                  <label className="form-label" htmlFor="status">
+                  <label className="form-label" htmlFor="state">
                     <b>
                       Status (<span className="required-red">*</span>):
                     </b>
@@ -162,13 +165,12 @@ function ModalEdit(props) {
                     className={`form-select ${
                       objCheckInput.isValidStatus ? "" : "is-invalid"
                     }`}
-                    id="status"
+                    id="state"
                     value={statusSelected}
                     onChange={(e) => setStatusSelected(e.target.value)}
                   >
-                    <option defaultValue>--Select option--</option>
                     <option value="todo">todo</option>
-                    <option value="progress">progress</option>
+                    <option value="inprogress">inprogress</option>
                     <option value="done">done</option>
                   </select>
                 </div>
@@ -179,7 +181,7 @@ function ModalEdit(props) {
 
         <Modal.Footer>
           <Button variant="secondary" onClick={props.handleCloseModalEdit}>
-            Cancer
+            Cancel
           </Button>
           <Button variant="primary" onClick={handleUpdateTask}>
             Update

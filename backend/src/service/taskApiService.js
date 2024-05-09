@@ -1,20 +1,40 @@
 const { Task } = require("../models/taskModel");
 const { User } = require("../models/userModel");
 
-async function getTaskPagniation(page = 1, limit = 5, title = "") {
+async function getTaskPagniation(
+  page = 1,
+  limit = 1,
+  title = "",
+  progress = ""
+) {
   try {
+    let data, totalPages;
     const totalCount = await Task.countDocuments({
-      title: { $regex: new RegExp(title, "i") },
+      $and: [
+        { title: { $regex: new RegExp(title, "i") } },
+        { state: { $regex: new RegExp(progress, "i") } },
+      ],
     });
+    totalPages = Math.ceil(totalCount / limit);
 
-    const totalPages = Math.ceil(totalCount / limit);
-    const data = await Task.find({
-      title: { $regex: new RegExp(title, "i") },
-    })
-      .populate("assignee", "username")
-      .skip((page - 1) * limit)
-      .limit(limit);
-
+    if (limit !== 1) {
+      data = await Task.find({
+        $and: [
+          { title: { $regex: new RegExp(title, "i") } },
+          { state: { $regex: new RegExp(progress, "i") } },
+        ],
+      })
+        .populate("assignee", "username")
+        .skip((page - 1) * limit)
+        .limit(limit);
+    } else {
+      data = await Task.find({
+        $and: [
+          { title: { $regex: new RegExp(title, "i") } },
+          { state: { $regex: new RegExp(progress, "i") } },
+        ],
+      });
+    }
     let data_ = {
       data: data,
       totalPages: totalPages,
@@ -22,13 +42,13 @@ async function getTaskPagniation(page = 1, limit = 5, title = "") {
 
     if (data_) {
       return {
-        EM: "get data success",
+        EM: "Get data success",
         EC: 0,
         DT: data_,
       };
     } else {
       return {
-        EM: "something wrongs with service heheh",
+        EM: "Something wrongs with service heheh",
         EC: 1,
         DT: [],
       };
@@ -36,7 +56,7 @@ async function getTaskPagniation(page = 1, limit = 5, title = "") {
   } catch (error) {
     console.log(error);
     return {
-      EM: "something wrongs with service",
+      EM: "Something wrongs with service",
       EC: 1,
       DT: [],
     };
@@ -60,62 +80,72 @@ async function createTask(taskData) {
 
     tasksave = await newTask.save();
     return {
-      EM: "create only new task successfully",
+      EM: "Create only new task successfully",
       EC: 0,
       DT: tasksave,
     };
   } catch (error) {
     console.log(error);
     return {
-      EM: "something wrongs with service",
+      EM: "Something wrongs with service",
       EC: 1,
       DT: [],
     };
   }
 }
 
-async function editTask(taskId, taskUpdateData) {
-  //task cần update và dữ liệu udpdate
+async function editTask(taskUpdateData) {
   try {
     let idUser = taskUpdateData.assignee;
-    if (idUser) {
-      let newUserUpdate = await User.findById(idUser);
+    if (+idUser === 0) taskUpdateData.assignee = null;
+    let newUserUpdate;
+    if (idUser != 0) {
+      newUserUpdate = await User.findById(idUser);
       if (!newUserUpdate) {
         return {
           EM: "This user is not exist!",
           EC: 1,
         };
       }
-      const taskSwitch = await Task.findById(taskId);
-      console.log("taskSwitch", taskSwitch);
+
+      const taskSwitch = await Task.findById(taskUpdateData.idTask);
       if (taskSwitch?.assignee) {
-        const oldUser = await User.findById(taskSwitch.assignee.toString());
+        const oldUser = await User.findById(taskSwitch.assignee);
         if (oldUser) {
-          oldUser.tasks = oldUser.tasks.filter(
-            (task) => task.toString() != taskId
-          );
-          await oldUser.save();
+          if (taskSwitch.assignee.toString() !== taskUpdateData.assignee) {
+            oldUser.tasks = oldUser.tasks.filter(
+              (task) => task.toString() !== taskUpdateData.idTask
+            );
+            await oldUser.save();
+          }
         }
       }
 
-      if (!newUserUpdate.tasks.includes(taskId))
-        newUserUpdate.tasks.push(taskId);
+      if (!newUserUpdate.tasks.includes(taskUpdateData.idTask))
+        newUserUpdate.tasks.push(taskUpdateData.idTask);
       await newUserUpdate.save();
     }
-    let anotherData = await Task.findByIdAndUpdate(taskId, taskUpdateData, {
-      new: true,
-    });
-    if (anotherData) {
+
+    let { idTask, ...updateData } = taskUpdateData;
+
+    let updatedTask = await Task.findByIdAndUpdate(
+      taskUpdateData.idTask,
+      updateData,
+      {
+        new: true,
+      }
+    );
+    if (updatedTask) {
       return {
-        EM: "edit task successfully",
+        EM: "Edit task successfully",
         EC: 0,
-        DT: anotherData,
+        DT: updatedTask,
       };
     }
   } catch (error) {
     console.log(error);
     return {
-      EM: "something wrongs with service....",
+      EM: "Something wrongs with service....",
       EC: 1,
       DT: [],
     };
@@ -128,7 +158,6 @@ const deleteTask = async (idTask) => {
 
     if (task?.assignee) {
       const taskAssigneed = await User.findById(task.assignee);
-      console.log("taskAssigneed", taskAssigneed);
       if (taskAssigneed) {
         taskAssigneed.tasks = taskAssigneed.tasks.filter(
           (task) => task.toString() != idTask
@@ -136,17 +165,16 @@ const deleteTask = async (idTask) => {
         await taskAssigneed.save();
       }
     }
-    console.log("idTask", idTask);
     taskDeleted = await Task.findByIdAndDelete(idTask);
     return {
-      EM: "delete task successfully",
+      EM: "Delete task successfully",
       EC: 0,
       DT: taskDeleted,
     };
   } catch (error) {
     console.log(error);
     return {
-      EM: "something wrongs with service",
+      EM: "Something wrongs with service",
       EC: 2,
       DT: [],
     };

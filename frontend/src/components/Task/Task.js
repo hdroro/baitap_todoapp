@@ -5,7 +5,9 @@ function Task() {
   return (
     <>
       <CreateTask />
-      <hr></hr>
+      <div className="container">
+        <hr></hr>
+      </div>
       <TaskList />
     </>
   );

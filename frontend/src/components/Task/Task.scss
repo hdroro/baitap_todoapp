@@ -6,3 +6,10 @@
 .button {
   cursor: pointer;
 }
+
+.badge {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  height: fit-content;
+}

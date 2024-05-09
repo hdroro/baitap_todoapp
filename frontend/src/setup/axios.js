@@ -25,6 +25,8 @@ instance.interceptors.request.use(
 );
 
 // Add a response interceptor
+let isUnauthorizedErrorShown = false;
+
 instance.interceptors.response.use(
   function (response) {
     // Any status code that lie within the range of 2xx cause this function to trigger
@@ -36,10 +38,14 @@ instance.interceptors.response.use(
     // Do something with response error
     const status = err.response?.status || 500;
     // we can handle global errors here
+
     switch (status) {
       // authentication (token related issues)
       case 401: {
-        toast.error("Unauthorized the user. Please login");
+        if (!isUnauthorizedErrorShown) {
+          toast.error("Unauthorized the user. Please login");
+          isUnauthorizedErrorShown = true;
+        }
         // window.location.href = "/login";
         return err.response.data;
       }
@@ -72,7 +78,7 @@ instance.interceptors.response.use(
 
       // generic api error (server related) unexpected
       default: {
-        return err;
+        return Promise.reject(err);
       }
     }
   }

@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { createNewTask } from "../../services/taskService";
 import { fetchAllUsers } from "../../services/userService";
 
-function CreateTask() {
+function CreateTask({ onChangeCreate }) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
@@ -20,9 +20,8 @@ function CreateTask() {
 
   const fetchAllUser = async () => {
     const data = await fetchAllUsers();
-    console.log("datadata", data);
     if (data && +data.EC === 0) {
-      setListUsers(data.DT);
+      setListUsers(data.DT.data);
     } else {
       toast.error(data.EM);
     }
@@ -68,11 +67,6 @@ function CreateTask() {
       return false;
     }
 
-    // if (!statusSelected) {
-    //   toast.error("Task status is required !");
-    //   setObjCheckInput({ ...defaultValidInput, isValidStatus: false });
-    //   return false;
-    // }
     return true;
   };
 

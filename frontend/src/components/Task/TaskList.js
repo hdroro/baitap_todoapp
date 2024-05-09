@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import ModalDelete from "./ModalTask/ModalDelete";
 import { fetchTaskPagniation, deleteTask } from "../../services/taskService";
 import { toast } from "react-toastify";
+import "./Task.scss";
 
 function TaskList() {
   const [isShowModalEdit, setIsShowModalEdit] = useState(false);
@@ -17,19 +18,55 @@ function TaskList() {
   const [currentLimit, setCurrentLimit] = useState(2);
   const [totalPages, setTotalPages] = useState(0);
 
-  useEffect(() => {
-    fetchTasks();
-  }, [currentPage, isShowModalDelete, isShowModalEdit, searchValue]);
+  const [todo, setTodo] = useState(0);
+  const [inprogress, setInprogress] = useState(0);
+  const [done, setDone] = useState(0);
 
-  const fetchTasks = async () => {
+  const [valueFilter, setValueFilter] = useState("");
+
+  useEffect(() => {
+    fetchTasks(valueFilter);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    currentPage,
+    isShowModalDelete,
+    isShowModalEdit,
+    searchValue,
+    valueFilter,
+  ]);
+
+  const fetchTasks = async (value = "") => {
     let response = await fetchTaskPagniation(
       currentPage,
       currentLimit,
-      searchValue
+      searchValue,
+      value
     );
     if (response && response.EC === 0) {
       setListTasks(response.DT.data);
       setTotalPages(response.DT.totalPages);
+    }
+  };
+
+  useEffect(() => {
+    fetchCountProgress();
+  }, [isShowModalEdit, isShowModalDelete]);
+
+  const fetchCountProgress = async () => {
+    let response = await fetchTaskPagniation();
+    setTodo(0);
+    setInprogress(0);
+    setDone(0);
+    if (response && +response.EC === 0) {
+      response.DT.data.map((item, idx) => {
+        if (item.state === "todo") {
+          setTodo((prev) => prev + 1);
+        } else if (item.state === "inprogress") {
+          setInprogress((prev) => prev + 1);
+        } else if (item.state === "done") {
+          setDone((prev) => prev + 1);
+        }
+      });
     }
   };
 
@@ -70,7 +107,6 @@ function TaskList() {
   };
   const handleConfirmDelete = async () => {
     let data = await deleteTask(dataModal._id);
-    console.log("data", data);
     if (data && +data.EC === 0) {
       toast.success(data.EM);
       await fetchTaskPagniation(currentPage, currentLimit, searchValue);
@@ -80,64 +116,102 @@ function TaskList() {
     }
   };
 
+  const handleFilterProgress = (value) => {
+    setCurrentLimit(2);
+    setCurrentPage(1);
+    setValueFilter(value);
+    fetchTasks(value);
+  };
+
+  const handleChangeSearchValue = (value) => {
+    setValueFilter("");
+    setSearchValue(value);
+  };
+
   return (
     <div className="container">
       <h4>Task List</h4>
-      <div className="col-12 col-sm-3 mb-3 float-end">
-        <div className="d-flex gap-2">
+      <div className="col-12  mb-3">
+        <div className="d-flex gap-2 justify-content-between">
+          <div className="count-state-tasks col-sm-4 d-flex gap-3 align-items-center">
+            <span
+              class="badge bg-secondary"
+              onClick={() => handleFilterProgress("")}
+            >
+              Total ({todo + done + inprogress})
+            </span>
+            <span
+              className="badge bg-primary"
+              onClick={() => handleFilterProgress("todo")}
+            >
+              Todo ({todo})
+            </span>
+            <span
+              className="badge bg-warning"
+              onClick={() => handleFilterProgress("inprogress")}
+            >
+              In progress ({inprogress})
+            </span>
+            <span
+              className="badge bg-success"
+              onClick={() => handleFilterProgress("done")}
+            >
+              Done ({done})
+            </span>
+          </div>
           <input
             type="text"
-            className={`form-control`}
+            className={`form-control w-25`}
             id="search"
             placeholder="Enter title to search ..."
             value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
+            onChange={(e) => handleChangeSearchValue(e.target.value)}
           />
           {/* <button className="btn btn-primary">Search</button> */}
         </div>
       </div>
-      <table className="table table-bordered">
-        <thead>
+      <table className="table table-bordered text-center">
+        <thead className="table-light">
           <tr>
             <th scope="col">#</th>
             <th scope="col">Title</th>
             <th scope="col">Assignee</th>
-            <th scope="col">Status</th>
+            <th scope="col">State</th>
             <th scope="col">Actions</th>
           </tr>
         </thead>
         <tbody>
-          {listTasks &&
-            listTasks.length &&
-            listTasks.map((item, index) => (
-              <tr key={index}>
-                <th scope="row">
-                  {(currentPage - 1) * currentLimit + index + 1}
-                </th>
-                <td>{item.title}</td>
-                <td>{item?.assignee?.username || "None"}</td>
-                <td>{item.state}</td>
-                <td className="d-flex gap-2">
-                  <button
-                    className="btn btn-warning"
-                    onClick={() => handleEditTask(item)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="btn btn-danger"
-                    onClick={() => handleDeleteRole(item)}
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
+          {listTasks && listTasks.length
+            ? listTasks.map((item, index) => (
+                <tr key={index}>
+                  <th scope="row">
+                    {(currentPage - 1) * currentLimit + index + 1}
+                  </th>
+                  <td>{item.title}</td>
+                  <td>{item?.assignee?.username || "None"}</td>
+                  <td>{item.state}</td>
+                  <td className="d-flex gap-2 justify-content-center">
+                    <button
+                      className="btn btn-warning"
+                      onClick={() => handleEditTask(item)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="btn btn-danger"
+                      onClick={() => handleDeleteRole(item)}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))
+            : "Not exist task"}
         </tbody>
       </table>
 
       {totalPages > 0 && (
-        <div className="user-footer">
+        <div className="user-footer d-flex justify-content-center">
           <ReactPaginate
             breakLabel="..."
             nextLabel="next >"
@@ -156,6 +230,7 @@ function TaskList() {
             breakLinkClassName="page-link"
             containerClassName="pagination"
             activeClassName="active"
+            forcePage={currentPage - 1}
             renderOnZeroPageCount={null}
           />
         </div>

@@ -1,11 +1,12 @@
 import axios from "../setup/axios";
 
-const fetchTaskPagniation = (page, limit, title) => {
+const fetchTaskPagniation = (page, limit, title, progress) => {
   return axios.get("/api/get-tasks", {
     params: {
       page,
       limit,
       title,
+      progress,
     },
   });
 };
