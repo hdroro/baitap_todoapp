@@ -18,13 +18,13 @@ function ModalForm(props) {
   const isValidInputs = () => {
     setObjCheckInput(defaultValidInput);
 
-    if (!username) {
+    if (!username.trim()) {
       toast.error("Username is required !");
       setObjCheckInput({ ...defaultValidInput, isValidUsername: false });
       return false;
     }
 
-    if (!name) {
+    if (!name.trim()) {
       toast.error("Name is required !");
       setObjCheckInput({ ...defaultValidInput, isValidName: false });
       return false;
@@ -37,7 +37,7 @@ function ModalForm(props) {
     var checkValid = isValidInputs();
 
     if (checkValid) {
-      const response = await createNewUser(username, name);
+      const response = await createNewUser(username.trim(), name.trim());
       if (response && +response.EC === 0) {
         toast.success(response.EM);
         props.handleCloseModalForm();

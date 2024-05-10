@@ -25,11 +25,18 @@ async function getAllUsers(page = 1, limit = 5, valueSearch = "") {
     });
 
     const totalPages = Math.ceil(totalCount / limit);
-    const users = await User.find({
-      name: { $regex: new RegExp(valueSearch, "i") },
-    })
-      .skip((page - 1) * limit)
-      .limit(limit);
+    let users;
+    if (limit === 5) {
+      users = await User.find({
+        name: { $regex: new RegExp(valueSearch, "i") },
+      });
+    } else {
+      users = await User.find({
+        name: { $regex: new RegExp(valueSearch, "i") },
+      })
+        .skip((page - 1) * limit)
+        .limit(limit);
+    }
 
     let usersWithTasks = await Promise.all(
       users.map(async (user) => {

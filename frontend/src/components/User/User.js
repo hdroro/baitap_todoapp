@@ -15,11 +15,13 @@ function User() {
 
   const [listUsers, setListUsers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [currentLimit, setCurrentLimit] = useState(2);
+  // eslint-disable-next-line no-unused-vars
+  const [currentLimit, setCurrentLimit] = useState(5);
   const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
     fetchUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, isShowModalDelete, isShowModalForm, searchValue]);
 
   const fetchUsers = async () => {
@@ -53,9 +55,15 @@ function User() {
       toast.success(data.EM);
       fetchUsers();
       setIsShowModalDelete(false);
+      setCurrentPage(1);
     } else {
       toast.error(data.EM);
     }
+  };
+
+  const handleChangeSearchValue = (value) => {
+    setCurrentPage(1);
+    setSearchValue(value);
   };
 
   return (
@@ -75,7 +83,7 @@ function User() {
             id="search"
             placeholder="Enter name to search ..."
             value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
+            onChange={(e) => handleChangeSearchValue(e.target.value)}
           />
           {/* <button className="btn btn-primary">Search</button> */}
         </div>
@@ -91,7 +99,7 @@ function User() {
           </tr>
         </thead>
         <tbody>
-          {listUsers && listUsers.length
+          {listUsers && listUsers?.length
             ? listUsers.map((item, index) => (
                 <tr key={index}>
                   <th scope="row">
@@ -100,26 +108,27 @@ function User() {
                   <td>{item.name}</td>
                   <td>{item.username}</td>
                   <td>
-                    {item.tasks && item.tasks.length
-                      ? item.tasks.map(
-                          (task, idx) =>
-                            task.assignee && (
-                              <span key={task.id}>
+                    {item.tasks && item.tasks.length > 0
+                      ? item.tasks.some((task) => task?.assignee !== null)
+                        ? item.tasks
+                            .filter((task) => task?.assignee !== null)
+                            .map((task, idx) => (
+                              <span key={task?._id}>
                                 <span
-                                  className={`badge  + ${
-                                    task.state === "todo"
+                                  className={`badge ${
+                                    task?.state === "todo"
                                       ? "bg-primary"
-                                      : task.state === "inprogress"
-                                      ? "bg-success"
-                                      : "bg-warning"
+                                      : task?.state === "inprogress"
+                                      ? "bg-warning"
+                                      : "bg-success"
                                   }`}
                                 >
-                                  {task.title}
+                                  {task?.title}
                                 </span>
-                                {idx === item.tasks.length - 1 ? "" : " "}
+                                {idx !== item?.tasks?.length - 1 && " "}
                               </span>
-                            )
-                        )
+                            ))
+                        : "None"
                       : "None"}
                   </td>
 
@@ -133,7 +142,7 @@ function User() {
                   </td>
                 </tr>
               ))
-            : "Not exist user"}
+            : "No user exists"}
         </tbody>
       </table>
       {totalPages > 0 && (
@@ -156,6 +165,7 @@ function User() {
             breakLinkClassName="page-link"
             containerClassName="pagination"
             activeClassName="active"
+            forcePage={currentPage - 1}
             renderOnZeroPageCount={null}
           />
         </div>

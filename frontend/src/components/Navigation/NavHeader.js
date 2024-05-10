@@ -25,11 +25,11 @@ function NavHeader() {
               <NavLink to="/" exact className="nav-link">
                 Home
               </NavLink>
-              <NavLink to="/task" exact className="nav-link">
-                Task
+              <NavLink to="/tasks" exact className="nav-link">
+                Tasks
               </NavLink>
-              <NavLink to="/user" exact className="nav-link">
-                User
+              <NavLink to="/users" exact className="nav-link">
+                Users
               </NavLink>
             </Nav>
             <Nav>

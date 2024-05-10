@@ -5,7 +5,7 @@ const checkJWT = require("../middleware/jwtActions");
 
 const router = express.Router();
 
-router.all("*", checkJWT.checkUserJWT);
+// router.all("*", checkJWT.checkUserJWT);
 
 router.get("/get-users", userController.readFunc);
 router.post("/add-user", userController.createFunc);

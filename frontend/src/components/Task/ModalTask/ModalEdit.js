@@ -21,7 +21,6 @@ function ModalEdit(props) {
 
   const fetchAllUser = async () => {
     const data = await fetchAllUsers();
-    console.log("datadata", data);
     if (data && +data.EC === 0) {
       setListUsers(data.DT.data);
     } else {
@@ -39,13 +38,13 @@ function ModalEdit(props) {
 
   const isValidInputs = () => {
     setObjCheckInput(defaultValidInput);
-    if (!title) {
+    if (!title.trim()) {
       toast.error("Task title is required !");
       setObjCheckInput({ ...defaultValidInput, isValidTitle: false });
       return false;
     }
 
-    if (!content) {
+    if (!content.trim()) {
       toast.error("Task content is required !");
       setObjCheckInput({ ...defaultValidInput, isValidContent: false });
       return false;
@@ -60,7 +59,6 @@ function ModalEdit(props) {
   };
 
   useEffect(() => {
-    console.log("data", data);
     setTitle(data.title);
     setContent(data.content);
     setAssgigneeSelected(data?.assignee ? data.assignee._id : "0");
@@ -71,12 +69,10 @@ function ModalEdit(props) {
     var checkValid = isValidInputs();
 
     if (checkValid) {
-      console.log("assgineeSelected", assgineeSelected);
-      console.log("statusSelected", statusSelected);
       const response = await editTask(
         data._id,
-        title,
-        content,
+        title.trim(),
+        content.trim(),
         assgineeSelected,
         statusSelected
       );
@@ -106,12 +102,13 @@ function ModalEdit(props) {
           <div className="content-body">
             <div className="row">
               <div className="col-12 col-sm-12 form-group mb-2">
-                <label>
+                <label htmlFor="title" className="form-label">
                   <b>
                     Title (<span className="required-red">*</span>):
                   </b>
                 </label>
                 <input
+                  id="title"
                   className={`form-control ${
                     objCheckInput.isValidTitle ? "" : "is-invalid"
                   }`}
@@ -122,7 +119,9 @@ function ModalEdit(props) {
               </div>
               <div className="col-12 col-sm-12 form-group mb-2">
                 <label htmlFor="content" className="form-label">
-                  <b>Content</b>
+                  <b>
+                    Content (<span className="required-red">*</span>):
+                  </b>
                 </label>
                 <textarea
                   className={`form-control ${
@@ -151,7 +150,9 @@ function ModalEdit(props) {
                     {listUsers &&
                       listUsers.length > 0 &&
                       listUsers.map((item, index) => (
-                        <option value={item._id}>{item.username}</option>
+                        <option value={item._id} key={index}>
+                          {item.username}
+                        </option>
                       ))}
                   </select>
                 </div>

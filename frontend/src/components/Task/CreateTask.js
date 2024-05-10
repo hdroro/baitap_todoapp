@@ -8,9 +8,13 @@ import { fetchAllUsers } from "../../services/userService";
 function CreateTask({ onChangeCreate }) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-
   const [assgineeSelected, setAssgigneeSelected] = useState("");
-  // const [statusSelected, setStatusSelected] = useState("");
+
+  const defaultValidInput = {
+    isValidTitle: true,
+    isValidContent: true,
+  };
+  const [objCheckInput, setObjCheckInput] = useState(defaultValidInput);
 
   const [listUsers, setListUsers] = useState([]);
 
@@ -27,41 +31,15 @@ function CreateTask({ onChangeCreate }) {
     }
   };
 
-  const defaultValidInput = {
-    isValidTitle: true,
-    isValidContent: true,
-    // isValidStatus: true,
-  };
-
-  const [objCheckInput, setObjCheckInput] = useState(defaultValidInput);
-
-  const handleChangeTitle = (value) => {
-    setTitle(value);
-  };
-
-  const handleChangeContent = (value) => {
-    setContent(value);
-  };
-
-  const handleOnChangeAssignee = (value) => {
-    setAssgigneeSelected(value);
-    console.log(value);
-  };
-
-  // const handleOnChangeStatus = (value) => {
-  //   setStatusSelected(value);
-  //   console.log(value);
-  // };
-
   const isValidInputs = () => {
     setObjCheckInput(defaultValidInput);
-    if (!title) {
+    if (!title.trim()) {
       toast.error("Task title is required !");
       setObjCheckInput({ ...defaultValidInput, isValidTitle: false });
       return false;
     }
 
-    if (!content) {
+    if (!content.trim()) {
       toast.error("Task content is required !");
       setObjCheckInput({ ...defaultValidInput, isValidContent: false });
       return false;
@@ -74,15 +52,24 @@ function CreateTask({ onChangeCreate }) {
     var checkValid = isValidInputs();
 
     if (checkValid) {
-      let response = await createNewTask(title, content, assgineeSelected);
+      let response = await createNewTask(
+        title.trim(),
+        content.trim(),
+        assgineeSelected
+      );
       if (response && +response.EC === 0) {
         toast.success(response.EM);
-        fetchAllUser();
+        setTitle("");
+        setContent("");
+        setAssgigneeSelected("");
+        onChangeCreate();
       } else {
         toast.error(response.EM);
       }
     }
   };
+
+  console.log(assgineeSelected);
   return (
     <div className="container container-task mt-5">
       <h4 className="d-flex ">Create Task</h4>
@@ -90,7 +77,9 @@ function CreateTask({ onChangeCreate }) {
         <div className="d-flex gap-3 w-100">
           <div className="mb-3 w-50">
             <label htmlFor="title" className="form-label">
-              <b>Title</b>
+              <b>
+                Title (<span className="required-red">*</span>):
+              </b>
             </label>
             <input
               type="text"
@@ -100,7 +89,7 @@ function CreateTask({ onChangeCreate }) {
               id="title"
               placeholder="Enter title here..."
               value={title}
-              onChange={(e) => handleChangeTitle(e.target.value)}
+              onChange={(e) => setTitle(e.target.value)}
             />
           </div>
 
@@ -111,21 +100,31 @@ function CreateTask({ onChangeCreate }) {
             <select
               className="form-select"
               id="assignee"
-              onChange={(event) => handleOnChangeAssignee(event.target.value)}
+              onChange={(event) =>
+                setAssgigneeSelected(
+                  event.target.value === "--Select option--"
+                    ? null
+                    : event.target.value
+                )
+              }
               value={assgineeSelected}
             >
-              <option defaultValue>--Select option--</option>
+              <option defaultValue={0}>--Select option--</option>
               {listUsers &&
                 listUsers.length > 0 &&
                 listUsers.map((item, index) => (
-                  <option value={item._id}>{item.username}</option>
+                  <option value={item._id} key={index}>
+                    {item.username}
+                  </option>
                 ))}
             </select>
           </div>
         </div>
         <div className="mb-3">
           <label htmlFor="content" className="form-label">
-            <b>Content</b>
+            <b>
+              Content (<span className="required-red">*</span>):
+            </b>
           </label>
           <textarea
             className={`form-control ${
@@ -135,7 +134,7 @@ function CreateTask({ onChangeCreate }) {
             rows="3"
             placeholder="Enter content here..."
             value={content}
-            onChange={(e) => handleChangeContent(e.target.value)}
+            onChange={(e) => setContent(e.target.value)}
           ></textarea>
         </div>
 

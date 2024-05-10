@@ -6,7 +6,7 @@ import { fetchTaskPagniation, deleteTask } from "../../services/taskService";
 import { toast } from "react-toastify";
 import "./Task.scss";
 
-function TaskList() {
+function TaskList({ isLoadPage }) {
   const [isShowModalEdit, setIsShowModalEdit] = useState(false);
   const [dataModal, setDataModal] = useState({});
   const [searchValue, setSearchValue] = useState("");
@@ -15,7 +15,8 @@ function TaskList() {
 
   const [listTasks, setListTasks] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [currentLimit, setCurrentLimit] = useState(2);
+  // eslint-disable-next-line no-unused-vars
+  const [currentLimit, setCurrentLimit] = useState(5);
   const [totalPages, setTotalPages] = useState(0);
 
   const [todo, setTodo] = useState(0);
@@ -33,6 +34,7 @@ function TaskList() {
     isShowModalEdit,
     searchValue,
     valueFilter,
+    isLoadPage,
   ]);
 
   const fetchTasks = async (value = "") => {
@@ -50,7 +52,7 @@ function TaskList() {
 
   useEffect(() => {
     fetchCountProgress();
-  }, [isShowModalEdit, isShowModalDelete]);
+  }, [isShowModalEdit, isShowModalDelete, isLoadPage]);
 
   const fetchCountProgress = async () => {
     let response = await fetchTaskPagniation();
@@ -58,6 +60,7 @@ function TaskList() {
     setInprogress(0);
     setDone(0);
     if (response && +response.EC === 0) {
+      // eslint-disable-next-line array-callback-return
       response.DT.data.map((item, idx) => {
         if (item.state === "todo") {
           setTodo((prev) => prev + 1);
@@ -108,16 +111,16 @@ function TaskList() {
   const handleConfirmDelete = async () => {
     let data = await deleteTask(dataModal._id);
     if (data && +data.EC === 0) {
-      toast.success(data.EM);
       await fetchTaskPagniation(currentPage, currentLimit, searchValue);
       setIsShowModalDelete(false);
+      setCurrentPage(1);
+      toast.success(data.EM);
     } else {
       toast.error(data.EM);
     }
   };
 
   const handleFilterProgress = (value) => {
-    setCurrentLimit(2);
     setCurrentPage(1);
     setValueFilter(value);
     fetchTasks(value);
@@ -125,17 +128,18 @@ function TaskList() {
 
   const handleChangeSearchValue = (value) => {
     setValueFilter("");
+    setCurrentPage(1);
     setSearchValue(value);
   };
 
   return (
     <div className="container">
-      <h4>Task List</h4>
+      <h4>Tasks List</h4>
       <div className="col-12  mb-3">
         <div className="d-flex gap-2 justify-content-between">
           <div className="count-state-tasks col-sm-4 d-flex gap-3 align-items-center">
             <span
-              class="badge bg-secondary"
+              className="badge bg-secondary"
               onClick={() => handleFilterProgress("")}
             >
               Total ({todo + done + inprogress})
@@ -206,7 +210,7 @@ function TaskList() {
                   </td>
                 </tr>
               ))
-            : "Not exist task"}
+            : "No task exists"}
         </tbody>
       </table>
 

@@ -1,0 +1,27 @@
+.container {
+  .content {
+    margin-top: 60px;
+    padding: 0 192px;
+    text-align: center;
+
+    .main-title h1 {
+      font-size: 69px !important;
+    }
+
+    .sec-title p {
+      color: rgba(35, 33, 21, 0.65);
+      font-size: 20px;
+      font-weight: 500;
+      margin-top: 15px;
+    }
+
+    .register {
+      margin-top: 25px;
+      padding: 7px 0;
+      background-color: #0071af;
+      border-radius: 10px;
+      color: #fff !important;
+      font-weight: 500;
+    }
+  }
+}

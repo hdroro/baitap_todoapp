@@ -24,6 +24,17 @@ const getToken = (req) => {
   return null;
 };
 
+const verifyToken = (token) => {
+  let key = process.env.JWT_SECRET;
+  let decoded = null;
+  try {
+    decoded = jwt.verify(token, key, { expiresIn: process.env.JWT_EXPIRES_IN });
+  } catch (error) {
+    console.log(error);
+  }
+  return decoded;
+};
+
 const checkUserJWT = async (req, res, next) => {
   try {
     if (nonSecurePaths.includes(req.path)) return next();
