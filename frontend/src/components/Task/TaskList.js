@@ -25,6 +25,8 @@ function TaskList({ isLoadPage }) {
 
   const [valueFilter, setValueFilter] = useState("");
 
+  const [chosen, setChosen] = useState("");
+
   useEffect(() => {
     fetchTasks(valueFilter);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -121,6 +123,7 @@ function TaskList({ isLoadPage }) {
   };
 
   const handleFilterProgress = (value) => {
+    setChosen(value);
     setCurrentPage(1);
     setValueFilter(value);
     fetchTasks(value);
@@ -130,6 +133,7 @@ function TaskList({ isLoadPage }) {
     setValueFilter("");
     setCurrentPage(1);
     setSearchValue(value);
+    setChosen("");
   };
 
   return (
@@ -139,25 +143,31 @@ function TaskList({ isLoadPage }) {
         <div className="d-flex gap-2 justify-content-between">
           <div className="count-state-tasks col-sm-4 d-flex gap-3 align-items-center">
             <span
-              className="badge bg-secondary"
+              className={`badge bg-secondary ${chosen === "" ? "chosen" : ""}`}
               onClick={() => handleFilterProgress("")}
             >
               Total ({todo + done + inprogress})
             </span>
             <span
-              className="badge bg-primary"
+              className={`badge bg-primary ${
+                chosen === "todo" ? "chosen" : ""
+              }`}
               onClick={() => handleFilterProgress("todo")}
             >
               Todo ({todo})
             </span>
             <span
-              className="badge bg-warning"
+              className={`badge bg-warning ${
+                chosen === "inprogress" ? "chosen" : ""
+              }`}
               onClick={() => handleFilterProgress("inprogress")}
             >
               In progress ({inprogress})
             </span>
             <span
-              className="badge bg-success"
+              className={`badge bg-success ${
+                chosen === "done" ? "chosen" : ""
+              }`}
               onClick={() => handleFilterProgress("done")}
             >
               Done ({done})
