@@ -8,56 +8,35 @@ async function getTaskPagniation(
   progress = ""
 ) {
   try {
-    let data, totalPages;
-    const totalCount = await Task.countDocuments({
+    const query = {
       $and: [
         { title: { $regex: new RegExp(title, "i") } },
         { state: { $regex: new RegExp(progress, "i") } },
       ],
-    });
-    totalPages = Math.ceil(totalCount / limit);
+    };
 
+    const totalCount = await Task.countDocuments(query);
+    const totalPages = Math.ceil(totalCount / limit);
+
+    let data;
     if (limit !== 1) {
-      data = await Task.find({
-        $and: [
-          { title: { $regex: new RegExp(title, "i") } },
-          { state: { $regex: new RegExp(progress, "i") } },
-        ],
-      })
+      data = await Task.find(query)
         .populate("assignee", "username")
         .skip((page - 1) * limit)
         .limit(limit);
     } else {
-      data = await Task.find({
-        $and: [
-          { title: { $regex: new RegExp(title, "i") } },
-          { state: { $regex: new RegExp(progress, "i") } },
-        ],
-      });
+      data = await Task.find(query);
     }
 
-    let data_ = {
-      data: data,
-      totalPages: totalPages,
-    };
-
-    if (data_) {
-      return {
-        EM: "Get data success",
-        EC: 0,
-        DT: data_,
-      };
-    } else {
-      return {
-        EM: "Something wrongs with service",
-        EC: 1,
-        DT: [],
-      };
-    }
-  } catch (error) {
-    console.log(error);
     return {
-      EM: "Something wrongs with service",
+      EM: "Get data success",
+      EC: 0,
+      DT: { data, totalPages },
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      EM: "Something went wrong with the service",
       EC: 1,
       DT: [],
     };
@@ -79,11 +58,11 @@ async function createTask(taskData) {
       user.save();
     } else newTask.assignee = null;
 
-    tasksave = await newTask.save();
+    savedTask = await newTask.save();
     return {
       EM: "Create only new task successfully",
       EC: 0,
-      DT: tasksave,
+      DT: savedTask,
     };
   } catch (error) {
     console.log(error);
@@ -113,7 +92,7 @@ async function editTask(taskUpdateData) {
       if (taskSwitch?.assignee) {
         const oldUser = await User.findById(taskSwitch.assignee);
         if (oldUser) {
-          if (taskSwitch.assignee.toString() !== taskUpdateData.assignee) {
+          if (taskSwitch.assignee.toString() !== idUser) {
             oldUser.tasks = oldUser.tasks.filter(
               (task) => task.toString() !== taskUpdateData.idTask
             );
