@@ -15,9 +15,7 @@ const createNewUser = (username, name) => {
 };
 
 const deleteUser = (idUser) => {
-  return axios.delete("/api/delete-user", {
-    data: { idUser: idUser },
-  });
+  return axios.delete(`/api/delete-user/${idUser}`);
 };
 
 export { fetchAllUsers, createNewUser, deleteUser };

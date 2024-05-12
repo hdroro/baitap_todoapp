@@ -50,7 +50,7 @@ const createFunc = async (req, res) => {
 
 const deleteFunc = async (req, res) => {
   try {
-    let idUser = req.body.idUser;
+    let idUser = req.params.id;
     if (idUser) {
       let data = await userService.deleteUser(idUser);
       return res.status(200).json({

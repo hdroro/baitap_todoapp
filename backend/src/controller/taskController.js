@@ -44,7 +44,8 @@ const createFunc = async (req, res) => {
 
 const editFunc = async (req, res) => {
   try {
-    let data = await taskService.editTask(req.body);
+    let idTask = req.params.id;
+    let data = await taskService.editTask(idTask, req.body);
     return res.status(200).json({
       EM: data.EM, //error message
       EC: data.EC, // error code
@@ -62,7 +63,7 @@ const editFunc = async (req, res) => {
 
 const deleteFunc = async (req, res) => {
   try {
-    let idTask = req.body.idTask;
+    let idTask = req.params.id;
     if (idTask) {
       let data = await taskService.deleteTask(idTask);
       return res.status(200).json({

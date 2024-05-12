@@ -74,7 +74,7 @@ async function createTask(taskData) {
   }
 }
 
-async function editTask(taskUpdateData) {
+async function editTask(idTask, taskUpdateData) {
   try {
     let idUser = taskUpdateData.assignee;
     if (+idUser === 0) taskUpdateData.assignee = null;
@@ -88,33 +88,27 @@ async function editTask(taskUpdateData) {
         };
       }
 
-      const taskSwitch = await Task.findById(taskUpdateData.idTask);
+      const taskSwitch = await Task.findById(idTask);
       if (taskSwitch?.assignee) {
         const oldUser = await User.findById(taskSwitch.assignee);
         if (oldUser) {
           if (taskSwitch.assignee.toString() !== idUser) {
             oldUser.tasks = oldUser.tasks.filter(
-              (task) => task.toString() !== taskUpdateData.idTask
+              (task) => task.toString() !== idTask
             );
             await oldUser.save();
           }
         }
       }
 
-      if (!newUserUpdate.tasks.includes(taskUpdateData.idTask))
-        newUserUpdate.tasks.push(taskUpdateData.idTask);
+      if (!newUserUpdate.tasks.includes(idTask))
+        newUserUpdate.tasks.push(idTask);
       await newUserUpdate.save();
     }
 
-    let { idTask, ...updateData } = taskUpdateData;
-
-    let updatedTask = await Task.findByIdAndUpdate(
-      taskUpdateData.idTask,
-      updateData,
-      {
-        new: true,
-      }
-    );
+    let updatedTask = await Task.findByIdAndUpdate(idTask, taskUpdateData, {
+      new: true,
+    });
     if (updatedTask) {
       return {
         EM: "Edit task successfully",

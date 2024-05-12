@@ -9,12 +9,12 @@ const router = express.Router();
 
 router.get("/get-users", userController.readFunc);
 router.post("/add-user", userController.createFunc);
-router.delete("/delete-user", userController.deleteFunc);
+router.delete("/delete-user/:id", userController.deleteFunc);
 
 //task
 router.get("/get-tasks", taskController.readFunc);
 router.post("/add-task", taskController.createFunc);
-router.put("/edit-task", taskController.editFunc);
-router.delete("/delete-task", taskController.deleteFunc);
+router.put("/edit-task/:id", taskController.editFunc);
+router.delete("/delete-task/:id", taskController.deleteFunc);
 
 module.exports = router;

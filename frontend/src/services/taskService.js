@@ -21,8 +21,7 @@ const createNewTask = (title, content, assignee, state) => {
 };
 
 const editTask = (idTask, title, content, assignee, state) => {
-  return axios.put("api/edit-task", {
-    idTask,
+  return axios.put(`/api/edit-task/${idTask}`, {
     title,
     content,
     assignee,
@@ -31,9 +30,7 @@ const editTask = (idTask, title, content, assignee, state) => {
 };
 
 const deleteTask = (idTask) => {
-  return axios.delete("/api/delete-task", {
-    data: { idTask: idTask },
-  });
+  return axios.delete(`/api/delete-task/${idTask}`);
 };
 
 export { fetchTaskPagniation, createNewTask, editTask, deleteTask };
