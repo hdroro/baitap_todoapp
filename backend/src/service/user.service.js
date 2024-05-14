@@ -73,13 +73,15 @@ const deleteUser = async (idUser) => {
   let user = await User.findById(idUser);
 
   if (!user) {
-    throw new ApiError(400, "User not found");
+    throw new ApiError(404, "User not found");
   }
 
   if (user?.tasks?.length > 0) {
     user.tasks.map(async (item, index) => {
       const userAssigned = await Task.findById(item);
-      userAssigned.assignee = null;
+      if (userAssigned) {
+        userAssigned.assignee = null;
+      }
     });
 
     await user.save();
