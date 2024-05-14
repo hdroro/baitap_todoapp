@@ -20,7 +20,6 @@ const createFunc = async (req, res) => {
     const task = await taskService.createTask(req.body);
     return res.status(201).send(task);
   } catch (error) {
-    console.log(error);
     return res.status(500).send({ message: error.message });
   }
 };
@@ -30,7 +29,6 @@ const updateFunc = async (req, res) => {
     const task = await taskService.editTask(req.params.id, req.body);
     return res.status(200).send(task);
   } catch (error) {
-    console.log(error);
     return res.status(500).send({ message: error.message });
   }
 };
@@ -40,7 +38,6 @@ const deleteFunc = async (req, res) => {
     const task = await taskService.deleteTask(req.params.id);
     return res.status(200).send(task);
   } catch (error) {
-    console.log(error);
     return res.status(500).send({ message: error.message });
   }
 };

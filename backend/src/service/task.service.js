@@ -43,13 +43,19 @@ async function createTask(taskData) {
     user.save();
   } else newTask.assignee = null;
 
-  savedTask = await newTask.save();
+  let savedTask = await newTask.save();
   return savedTask;
 }
 
 async function editTask(idTask, taskUpdateData) {
+  const taskSwitch = await Task.findById(idTask);
+  if (!taskSwitch) {
+    throw new ApiError(404, "Task not found");
+  }
+
   let idUser = taskUpdateData.assignee;
   if (+idUser === 0) taskUpdateData.assignee = null;
+
   let newUserUpdate;
   if (idUser != 0) {
     newUserUpdate = await User.findById(idUser);
@@ -57,10 +63,6 @@ async function editTask(idTask, taskUpdateData) {
       throw new ApiError(404, "User not found");
     }
 
-    const taskSwitch = await Task.findById(idTask);
-    if (!taskSwitch) {
-      throw new ApiError(404, "Task not found");
-    }
     if (taskSwitch?.assignee) {
       const oldUser = await User.findById(taskSwitch.assignee);
       if (oldUser) {

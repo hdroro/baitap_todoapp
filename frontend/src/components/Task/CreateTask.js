@@ -51,13 +51,13 @@ function CreateTask({ onChangeCreate }) {
       try {
         await createNewTask(title.trim(), content.trim(), assgineeSelected);
         toast.success("Create successfully!");
+        setTitle("");
+        setContent("");
+        setAssgigneeSelected("");
+        onChangeCreate();
       } catch (error) {
         toast.error(error.response.data.message);
       }
-      setTitle("");
-      setContent("");
-      setAssgigneeSelected("");
-      onChangeCreate();
     }
   };
 

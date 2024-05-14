@@ -40,12 +40,12 @@ function ModalForm(props) {
       try {
         await createNewUser(username.trim(), name.trim());
         toast.success("Create successfully!");
+        props.handleCloseModalForm();
+        setUsername("");
+        setName("");
       } catch (error) {
         toast.error(error.response.data.message);
       }
-      props.handleCloseModalForm();
-      setUsername("");
-      setName("");
     }
   };
   return (

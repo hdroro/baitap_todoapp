@@ -58,7 +58,7 @@ async function getAllUsers(page = 1, limit = null, valueSearch = "") {
 async function createUser(userData) {
   let { username, name } = userData;
   if (await checkUsernameExist(username)) {
-    throw new ApiError(400, "The username already exist");
+    throw new ApiError(400, "The username is already taken");
   }
   let hashPassword = hashUserPassword((password = process.env.PASSWORD));
   const newUser = new User({
@@ -66,7 +66,8 @@ async function createUser(userData) {
     name: name,
     password: hashPassword,
   });
-  await newUser.save();
+  let userCreated = await newUser.save();
+  return userCreated;
 }
 
 const deleteUser = async (idUser) => {
