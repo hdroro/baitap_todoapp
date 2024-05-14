@@ -40,15 +40,18 @@ function TaskList({ isLoadPage }) {
   ]);
 
   const fetchTasks = async (value = "") => {
-    let response = await fetchTaskPagniation(
-      currentPage,
-      currentLimit,
-      searchValue,
-      value
-    );
-    if (response && response.EC === 0) {
-      setListTasks(response.DT.data);
-      setTotalPages(response.DT.totalPages);
+    let response;
+    try {
+      response = await fetchTaskPagniation(
+        currentPage,
+        currentLimit,
+        searchValue,
+        value
+      );
+      setListTasks(response.data);
+      setTotalPages(response.totalPages);
+    } catch (error) {
+      toast.error(error.response.data.message);
     }
   };
 
@@ -61,18 +64,15 @@ function TaskList({ isLoadPage }) {
     setTodo(0);
     setInprogress(0);
     setDone(0);
-    if (response && +response.EC === 0) {
-      // eslint-disable-next-line array-callback-return
-      response.DT.data.map((item, idx) => {
-        if (item.state === "todo") {
-          setTodo((prev) => prev + 1);
-        } else if (item.state === "inprogress") {
-          setInprogress((prev) => prev + 1);
-        } else if (item.state === "done") {
-          setDone((prev) => prev + 1);
-        }
-      });
-    }
+    response.data.map((item, idx) => {
+      if (item.state === "todo") {
+        setTodo((prev) => prev + 1);
+      } else if (item.state === "inprogress") {
+        setInprogress((prev) => prev + 1);
+      } else if (item.state === "done") {
+        setDone((prev) => prev + 1);
+      }
+    });
   };
 
   const handlePageClick = async (event) => {
@@ -87,20 +87,6 @@ function TaskList({ isLoadPage }) {
     setIsShowModalDelete(false);
   };
 
-  // const handleSearch = async () => {
-  //   const response = await fetchTaskPagniation(
-  //     currentPage,
-  //     currentLimit,
-  //     searchValue
-  //   );
-  //   if (response && +response.EC === 0) {
-  //     toast.success(response.EM);
-  //     setListTasks(response.DT);
-  //   } else {
-  //     toast.error(response.EM);
-  //   }
-  // };
-
   const handleEditTask = (item) => {
     setIsShowModalEdit(true);
     setDataModal(item);
@@ -111,15 +97,15 @@ function TaskList({ isLoadPage }) {
     setDataModal(item);
   };
   const handleConfirmDelete = async () => {
-    let data = await deleteTask(dataModal._id);
-    if (data && +data.EC === 0) {
-      await fetchTaskPagniation(currentPage, currentLimit, searchValue);
-      setIsShowModalDelete(false);
-      setCurrentPage(1);
-      toast.success(data.EM);
-    } else {
-      toast.error(data.EM);
+    try {
+      await deleteTask(dataModal._id);
+      toast.success("Delete successfully!");
+    } catch (error) {
+      toast.error(error.response.data.message);
     }
+    setIsShowModalDelete(false);
+    await fetchTaskPagniation(currentPage, currentLimit, searchValue);
+    setCurrentPage(1);
   };
 
   const handleFilterProgress = (value) => {

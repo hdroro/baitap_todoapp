@@ -24,11 +24,7 @@ function CreateTask({ onChangeCreate }) {
 
   const fetchAllUser = async () => {
     const data = await fetchAllUsers();
-    if (data && +data.EC === 0) {
-      setListUsers(data.DT.data);
-    } else {
-      toast.error(data.EM);
-    }
+    setListUsers(data.data);
   };
 
   const isValidInputs = () => {
@@ -52,24 +48,19 @@ function CreateTask({ onChangeCreate }) {
     var checkValid = isValidInputs();
 
     if (checkValid) {
-      let response = await createNewTask(
-        title.trim(),
-        content.trim(),
-        assgineeSelected
-      );
-      if (response && +response.EC === 0) {
-        toast.success(response.EM);
-        setTitle("");
-        setContent("");
-        setAssgigneeSelected("");
-        onChangeCreate();
-      } else {
-        toast.error(response.EM);
+      try {
+        await createNewTask(title.trim(), content.trim(), assgineeSelected);
+        toast.success("Create successfully!");
+      } catch (error) {
+        toast.error(error.response.data.message);
       }
+      setTitle("");
+      setContent("");
+      setAssgigneeSelected("");
+      onChangeCreate();
     }
   };
 
-  console.log(assgineeSelected);
   return (
     <div className="container container-task mt-5">
       <h4 className="d-flex ">Create Task</h4>

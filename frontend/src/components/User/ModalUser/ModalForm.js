@@ -37,13 +37,15 @@ function ModalForm(props) {
     var checkValid = isValidInputs();
 
     if (checkValid) {
-      const response = await createNewUser(username.trim(), name.trim());
-      if (response && +response.EC === 0) {
-        toast.success(response.EM);
-        props.handleCloseModalForm();
-      } else {
-        toast.error(response.EM);
+      try {
+        await createNewUser(username.trim(), name.trim());
+        toast.success("Create successfully!");
+      } catch (error) {
+        toast.error(error.response.data.message);
       }
+      props.handleCloseModalForm();
+      setUsername("");
+      setName("");
     }
   };
   return (
@@ -81,7 +83,9 @@ function ModalForm(props) {
 
               <div className="col-12 col-sm-12 form-group mb-2">
                 <label>
-                  <b>Name:</b>
+                  <b>
+                    Name (<span className="required-red">*</span>):
+                  </b>
                 </label>
                 <input
                   className={`form-control ${

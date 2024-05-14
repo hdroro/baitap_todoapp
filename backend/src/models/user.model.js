@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const user = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
@@ -16,5 +16,13 @@ const user = new mongoose.Schema({
   },
   tasks: [{ type: mongoose.Schema.Types.ObjectId, ref: "Task" }],
 });
-const User = mongoose.model("User", user);
-module.exports = { User };
+
+const User = mongoose.model("User", userSchema);
+
+const checkUsernameExist = async (username) => {
+  let user = await User.findOne({ username: username });
+
+  return !!user;
+};
+
+module.exports = { User, checkUsernameExist };

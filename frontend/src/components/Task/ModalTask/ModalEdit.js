@@ -21,11 +21,7 @@ function ModalEdit(props) {
 
   const fetchAllUser = async () => {
     const data = await fetchAllUsers();
-    if (data && +data.EC === 0) {
-      setListUsers(data.DT.data);
-    } else {
-      toast.error(data.EM);
-    }
+    setListUsers(data.data);
   };
 
   const defaultValidInput = {
@@ -69,19 +65,19 @@ function ModalEdit(props) {
     var checkValid = isValidInputs();
 
     if (checkValid) {
-      const response = await editTask(
-        data._id,
-        title.trim(),
-        content.trim(),
-        assgineeSelected,
-        statusSelected
-      );
-      if (response && +response.EC === 0) {
-        toast.success(response.EM);
-        props.handleCloseModalEdit();
-      } else {
-        toast.error(response.EM);
+      try {
+        await editTask(
+          data._id,
+          title.trim(),
+          content.trim(),
+          assgineeSelected,
+          statusSelected
+        );
+        toast.success("Update successfully!");
+      } catch (error) {
+        toast.error(error.response.data.message);
       }
+      props.handleCloseModalEdit();
     }
   };
   return (

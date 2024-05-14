@@ -22,14 +22,12 @@ function User() {
   useEffect(() => {
     fetchUsers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, isShowModalDelete, isShowModalForm, searchValue]);
+  }, [currentPage, searchValue]);
 
   const fetchUsers = async () => {
     let response = await fetchAllUsers(currentPage, currentLimit, searchValue);
-    if (response && response.EC === 0) {
-      setListUsers(response.DT.data);
-      setTotalPages(response.DT.totalPages);
-    }
+    setListUsers(response.data);
+    setTotalPages(response.totalPages);
   };
 
   const handlePageClick = async (event) => {
@@ -38,10 +36,12 @@ function User() {
 
   const handleCloseModalForm = () => {
     setIsShowModalForm(false);
+    fetchUsers();
   };
 
   const handleCloseModalDelete = () => {
     setIsShowModalDelete(false);
+    fetchUsers();
   };
 
   const handleDeleteUser = (item) => {
@@ -50,15 +50,15 @@ function User() {
   };
 
   const handleConfirmDelete = async () => {
-    let data = await deleteUser(dataModal._id);
-    if (data && +data.EC === 0) {
-      toast.success(data.EM);
+    try {
+      await deleteUser(dataModal._id);
+      toast.success("Delete successfully!");
       fetchUsers();
-      setIsShowModalDelete(false);
-      setCurrentPage(1);
-    } else {
-      toast.error(data.EM);
+    } catch (error) {
+      toast.error(error.response.data.message);
     }
+    setIsShowModalDelete(false);
+    setCurrentPage(1);
   };
 
   const handleChangeSearchValue = (value) => {
