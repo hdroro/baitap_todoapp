@@ -18,7 +18,7 @@ const createUser = {
 
 const deleteUser = {
   params: Joi.object().keys({
-    idUser: Joi.string().required().custom(objectId),
+    id: Joi.string().required().custom(objectId),
   }),
 };
 

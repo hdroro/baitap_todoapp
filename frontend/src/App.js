@@ -5,6 +5,8 @@ import Task from "./components/Task/Task";
 import { ToastContainer } from "react-toastify";
 import User from "./components/User/User";
 import Home from "./components/Home/Home";
+import NotFound from "./components/NotFound/NotFound";
+import Login from "./components/Login/Login";
 
 function App() {
   return (
@@ -17,7 +19,8 @@ function App() {
           <Route path="/" Component={Home} exact={true}></Route>
           <Route path="/tasks" Component={Task}></Route>
           <Route path="/users" Component={User}></Route>
-          <Route path="*">404 NOT FOUND</Route>
+          <Route path="/login" Component={Login}></Route>
+          <Route path="*" Component={NotFound}></Route>
         </Routes>
       </Router>
 

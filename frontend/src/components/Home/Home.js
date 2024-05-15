@@ -14,8 +14,8 @@ function Home() {
           </p>
         </div>
         <div>
-          <Link to="/tasks" className="nav-link register">
-            Go to tasks
+          <Link to="/login" className="nav-link register">
+            Go to login
           </Link>
         </div>
       </div>

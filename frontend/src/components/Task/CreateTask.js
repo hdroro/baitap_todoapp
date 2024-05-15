@@ -23,8 +23,12 @@ function CreateTask({ onChangeCreate }) {
   }, []);
 
   const fetchAllUser = async () => {
-    const data = await fetchAllUsers();
-    setListUsers(data.data);
+    try {
+      const data = await fetchAllUsers();
+      setListUsers(data.data);
+    } catch (error) {
+      toast.error(error.response.data.message);
+    }
   };
 
   const isValidInputs = () => {
@@ -48,15 +52,19 @@ function CreateTask({ onChangeCreate }) {
     var checkValid = isValidInputs();
 
     if (checkValid) {
-      try {
-        await createNewTask(title.trim(), content.trim(), assgineeSelected);
+      let response = await createNewTask(
+        title.trim(),
+        content.trim(),
+        assgineeSelected
+      );
+      if (response.code) {
+        toast.error(response.message);
+      } else {
         toast.success("Create successfully!");
         setTitle("");
         setContent("");
         setAssgigneeSelected("");
         onChangeCreate();
-      } catch (error) {
-        toast.error(error.response.data.message);
       }
     }
   };

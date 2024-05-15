@@ -1,32 +1,21 @@
 const userService = require("../service/user.service");
+const catchAsync = require("../utils/catchAsync");
 
-const readFunc = async (req, res) => {
-  try {
-    const { page, limit, searchValue } = req.query;
-    const users = await userService.getAllUsers(page, limit, searchValue);
-    return res.status(200).send(users);
-  } catch (error) {
-    return res.status(500).send({ message: error.message });
-  }
-};
+const readFunc = catchAsync(async (req, res) => {
+  const { page, limit, searchValue } = req.query;
+  const users = await userService.getAllUsers(page, limit, searchValue);
+  res.status(200).send(users);
+});
 
-const createFunc = async (req, res) => {
-  try {
-    const user = await userService.createUser(req.body);
-    return res.status(201).send(user);
-  } catch (error) {
-    return res.status(500).send({ message: error.message });
-  }
-};
+const createFunc = catchAsync(async (req, res) => {
+  const user = await userService.createUser(req.body);
+  res.status(201).send(user);
+});
 
-const deleteFunc = async (req, res) => {
-  try {
-    await userService.deleteUser(req.params.id);
-    return res.status(200).send();
-  } catch (error) {
-    return res.status(500).send({ message: error.message });
-  }
-};
+const deleteFunc = catchAsync(async (req, res) => {
+  await userService.deleteUser(req.params.id);
+  res.status(200).send();
+});
 
 module.exports = {
   readFunc,

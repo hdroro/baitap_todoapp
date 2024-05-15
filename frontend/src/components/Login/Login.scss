@@ -1,0 +1,52 @@
+.login-container {
+  min-height: 100vh;
+  padding-top: 20px;
+
+  .brand {
+    text-transform: uppercase;
+    font-size: 25px;
+    font-weight: bolder;
+  }
+  .btn-login {
+    background-color: #0071af !important;
+    color: #fff;
+
+    &:hover {
+      opacity: 0.9 !important;
+      color: #fff !important;
+    }
+  }
+
+  .content-left {
+    margin-top: 50px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    border-radius: 8px;
+    border: none;
+
+    .forgotten-password {
+      text-decoration: none;
+      font-size: 14px;
+      color: #000;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    .forward-to-register {
+      font-size: 14px;
+      padding-top: 5px;
+      border-top: 0.1px solid #eeeeee;
+      span {
+        text-decoration: underline;
+        cursor: pointer;
+      }
+    }
+  }
+  .content-right {
+    img {
+      width: 80%;
+    }
+  }
+}

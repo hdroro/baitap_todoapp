@@ -14,26 +14,27 @@ const createTask = {
   body: Joi.object().keys({
     title: Joi.string().required(),
     content: Joi.string().required(),
-    assignee: Joi.string().custom(objectId),
+    assignee: Joi.string().custom(objectId).allow("", null),
   }),
 };
 
 const updateTask = {
   params: Joi.object().keys({
-    idTask: Joi.required().custom(objectId),
+    id: Joi.required().custom(objectId),
   }),
   body: Joi.object()
     .keys({
       title: Joi.string(),
       content: Joi.string(),
-      assignee: Joi.string().custom(objectId),
+      assignee: Joi.string().allow("", null),
+      state: Joi.string(),
     })
-    .min(1),
+    .min(2),
 };
 
 const deleteTask = {
   params: Joi.object().keys({
-    idTask: Joi.string().custom(objectId),
+    id: Joi.string().custom(objectId),
   }),
 };
 

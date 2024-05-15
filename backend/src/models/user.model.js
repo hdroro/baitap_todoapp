@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const bcypt = require("bcryptjs");
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -25,4 +26,8 @@ const checkUsernameExist = async (username) => {
   return !!user;
 };
 
-module.exports = { User, checkUsernameExist };
+const isPasswordMatch = (userPassword, password) => {
+  return bcypt.compareSync(userPassword, password);
+};
+
+module.exports = { User, checkUsernameExist, isPasswordMatch };

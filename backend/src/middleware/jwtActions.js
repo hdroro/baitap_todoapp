@@ -1,7 +1,8 @@
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
+const ApiError = require("../utils/ApiError");
 
-const nonSecurePaths = ["/login", "/register", "/logout"];
+const nonSecurePaths = ["/auth/login"];
 
 const createJWT = (payload) => {
   let key = process.env.JWT_SECRET;
@@ -30,7 +31,7 @@ const verifyToken = (token) => {
   try {
     decoded = jwt.verify(token, key, { expiresIn: process.env.JWT_EXPIRES_IN });
   } catch (error) {
-    console.log(error);
+    throw new ApiError(500, { message: error.response.data.message });
   }
   return decoded;
 };
@@ -38,33 +39,24 @@ const verifyToken = (token) => {
 const checkUserJWT = async (req, res, next) => {
   try {
     if (nonSecurePaths.includes(req.path)) return next();
-    let tokenFromHeader = getToken(req);
 
+    let tokenFromHeader = getToken(req);
     let cookies = req.cookies;
-    if ((cookies && cookies.jwt) || tokenFromHeader) {
-      let token = cookies && cookies.jwt ? cookies.jwt : tokenFromHeader;
+    let token = cookies && cookies.jwt ? cookies.jwt : tokenFromHeader;
+
+    if (token) {
       let decoded = verifyToken(token);
 
       if (decoded) {
         req.user = decoded;
         req.token = token;
-        next();
-      } else {
-        return res.status(401).json({
-          EC: -1,
-          DT: "",
-          EM: "Not authenticated the user!",
-        });
+        return next();
       }
-    } else {
-      return res.status(401).json({
-        EC: -1,
-        DT: "",
-        EM: "Not authenticated the user!",
-      });
     }
+
+    throw new ApiError(401, "Not authenticated the user!");
   } catch (error) {
-    console.log(error);
+    res.status(error.statusCode || 500).send({ message: error.message });
   }
 };
 

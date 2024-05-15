@@ -52,7 +52,7 @@ instance.interceptors.response.use(
 
       // forbidden (permission related issues)
       case 403: {
-        toast.error(err.response.data.EM);
+        toast.error(err.response.data.message);
         return err.response.data;
       }
 

@@ -26,18 +26,16 @@ function TaskList({ isLoadPage }) {
   const [valueFilter, setValueFilter] = useState("");
 
   const [chosen, setChosen] = useState("");
+  const [isLoadListPage, setIsLoadListPage] = useState(false);
 
   useEffect(() => {
     fetchTasks(valueFilter);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    currentPage,
-    isShowModalDelete,
-    isShowModalEdit,
-    searchValue,
-    valueFilter,
-    isLoadPage,
-  ]);
+  }, [currentPage, searchValue, valueFilter, isLoadListPage, isLoadPage]);
+
+  const handleLoadPage = () => {
+    setIsLoadListPage(!isLoadListPage);
+  };
 
   const fetchTasks = async (value = "") => {
     let response;
@@ -60,19 +58,24 @@ function TaskList({ isLoadPage }) {
   }, [isShowModalEdit, isShowModalDelete, isLoadPage]);
 
   const fetchCountProgress = async () => {
-    let response = await fetchTaskPagniation();
-    setTodo(0);
-    setInprogress(0);
-    setDone(0);
-    response.data.map((item, idx) => {
-      if (item.state === "todo") {
-        setTodo((prev) => prev + 1);
-      } else if (item.state === "inprogress") {
-        setInprogress((prev) => prev + 1);
-      } else if (item.state === "done") {
-        setDone((prev) => prev + 1);
-      }
-    });
+    let response;
+    try {
+      response = await fetchTaskPagniation();
+      setTodo(0);
+      setInprogress(0);
+      setDone(0);
+      response.data.map((item, idx) => {
+        if (item.state === "todo") {
+          setTodo((prev) => prev + 1);
+        } else if (item.state === "inprogress") {
+          setInprogress((prev) => prev + 1);
+        } else if (item.state === "done") {
+          setDone((prev) => prev + 1);
+        }
+      });
+    } catch (error) {
+      return error;
+    }
   };
 
   const handlePageClick = async (event) => {
@@ -92,20 +95,21 @@ function TaskList({ isLoadPage }) {
     setDataModal(item);
   };
 
-  const handleDeleteRole = (item) => {
+  const handleDeleteTask = (item) => {
     setIsShowModalDelete(true);
     setDataModal(item);
   };
   const handleConfirmDelete = async () => {
-    try {
-      await deleteTask(dataModal._id);
+    let response = await deleteTask(dataModal._id);
+    if (response.code) {
+      toast.error(response.message);
+    } else {
       toast.success("Delete successfully!");
-    } catch (error) {
-      toast.error(error.response.data.message);
+      setIsLoadListPage(!isLoadListPage);
+      setIsShowModalDelete(false);
+      await fetchTaskPagniation(currentPage, currentLimit, searchValue);
+      setCurrentPage(1);
     }
-    setIsShowModalDelete(false);
-    await fetchTaskPagniation(currentPage, currentLimit, searchValue);
-    setCurrentPage(1);
   };
 
   const handleFilterProgress = (value) => {
@@ -199,7 +203,7 @@ function TaskList({ isLoadPage }) {
                     </button>
                     <button
                       className="btn btn-danger"
-                      onClick={() => handleDeleteRole(item)}
+                      onClick={() => handleDeleteTask(item)}
                     >
                       Delete
                     </button>
@@ -240,6 +244,7 @@ function TaskList({ isLoadPage }) {
         isShowModalEdit={isShowModalEdit}
         handleCloseModalEdit={handleCloseModalEdit}
         dataModal={dataModal}
+        onChangeAction={() => handleLoadPage()}
       />
 
       <ModalDelete

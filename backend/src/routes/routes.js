@@ -1,16 +1,28 @@
 const express = require("express");
 const userController = require("../controller/user.controller");
 const taskController = require("../controller/task.controller");
-// const checkJWT = require("../middleware/jwtActions");
+const authController = require("../controller/auth.controller");
+const checkJWT = require("../middleware/jwtActions");
 
 const validate = require("../middleware/validate");
-const userValidation = require("../validations");
-const taskValidation = require("../validations");
+const {
+  userValidation,
+  taskValidation,
+  authValidation,
+} = require("../validations");
 
 const router = express.Router();
 
-// router.all("*", checkJWT.checkUserJWT);
+router.all("*", checkJWT.checkUserJWT);
 
+//auth
+router.post(
+  "/auth/login",
+  validate(authValidation.login),
+  authController.login
+);
+
+//users
 router.get("/get-users", userController.readFunc);
 router.post(
   "/add-user",

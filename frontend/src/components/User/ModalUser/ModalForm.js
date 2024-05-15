@@ -37,14 +37,14 @@ function ModalForm(props) {
     var checkValid = isValidInputs();
 
     if (checkValid) {
-      try {
-        await createNewUser(username.trim(), name.trim());
+      let response = await createNewUser(username.trim(), name.trim());
+      if (response.code) {
+        toast.error(response.message);
+      } else {
         toast.success("Create successfully!");
         props.handleCloseModalForm();
         setUsername("");
         setName("");
-      } catch (error) {
-        toast.error(error.response.data.message);
       }
     }
   };

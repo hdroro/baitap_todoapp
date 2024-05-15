@@ -25,9 +25,17 @@ function User() {
   }, [currentPage, searchValue]);
 
   const fetchUsers = async () => {
-    let response = await fetchAllUsers(currentPage, currentLimit, searchValue);
-    setListUsers(response.data);
-    setTotalPages(response.totalPages);
+    try {
+      let response = await fetchAllUsers(
+        currentPage,
+        currentLimit,
+        searchValue
+      );
+      setListUsers(response.data);
+      setTotalPages(response.totalPages);
+    } catch (error) {
+      toast.error(error.response.data.message);
+    }
   };
 
   const handlePageClick = async (event) => {
@@ -41,7 +49,7 @@ function User() {
 
   const handleCloseModalDelete = () => {
     setIsShowModalDelete(false);
-    fetchUsers();
+    // fetchUsers();
   };
 
   const handleDeleteUser = (item) => {
@@ -50,15 +58,15 @@ function User() {
   };
 
   const handleConfirmDelete = async () => {
-    try {
-      await deleteUser(dataModal._id);
+    let response = await deleteUser(dataModal._id);
+    if (response.code) {
+      toast.error(response.message);
+    } else {
       toast.success("Delete successfully!");
       fetchUsers();
-    } catch (error) {
-      toast.error(error.response.data.message);
+      setIsShowModalDelete(false);
+      setCurrentPage(1);
     }
-    setIsShowModalDelete(false);
-    setCurrentPage(1);
   };
 
   const handleChangeSearchValue = (value) => {
