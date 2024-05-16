@@ -2,7 +2,7 @@ const express = require("express");
 const userController = require("../controller/user.controller");
 const taskController = require("../controller/task.controller");
 const authController = require("../controller/auth.controller");
-const checkJWT = require("../middleware/jwtActions");
+const checkJWT = require("../middleware/authmiddleware");
 
 const validate = require("../middleware/validate");
 const {
@@ -12,6 +12,12 @@ const {
 } = require("../validations");
 
 const router = express.Router();
+
+router.post(
+  "/refresh",
+  validate(authValidation.refreshTokens),
+  authController.refreshToken
+);
 
 router.all("*", checkJWT.checkUserJWT);
 

@@ -5,12 +5,15 @@ const ApiError = require("../utils/ApiError");
 const nonSecurePaths = ["/auth/login"];
 
 const createJWT = (payload) => {
-  let key = process.env.JWT_SECRET;
-  let token = null;
+  let accesstoken = null,
+    refreshtoken = null;
   try {
-    token = jwt.sign(payload, key);
+    accesstoken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET);
+    refreshtoken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET);
+
+    return { accesstoken, refreshtoken };
   } catch (error) {
-    console.log(error);
+    res.status(error.statusCode || 500).send({ message: error.message });
   }
   return token;
 };
@@ -25,28 +28,17 @@ const getToken = (req) => {
   return null;
 };
 
-const verifyToken = (token) => {
-  let key = process.env.JWT_SECRET;
-  let decoded = null;
-  try {
-    decoded = jwt.verify(token, key, { expiresIn: process.env.JWT_EXPIRES_IN });
-  } catch (error) {
-    throw new ApiError(500, { message: error.response.data.message });
-  }
-  return decoded;
-};
-
 const checkUserJWT = async (req, res, next) => {
   try {
     if (nonSecurePaths.includes(req.path)) return next();
 
     let tokenFromHeader = getToken(req);
     let cookies = req.cookies;
-    let token = cookies && cookies.jwt ? cookies.jwt : tokenFromHeader;
+    let token =
+      cookies && cookies.accesstoken ? cookies.accesstoken : tokenFromHeader;
 
     if (token) {
-      let decoded = verifyToken(token);
-
+      let decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
       if (decoded) {
         req.user = decoded;
         req.token = token;
@@ -54,7 +46,7 @@ const checkUserJWT = async (req, res, next) => {
       }
     }
 
-    throw new ApiError(401, "Not authenticated the user!");
+    throw new ApiError(401, "The user is not authenticated!");
   } catch (error) {
     res.status(error.statusCode || 500).send({ message: error.message });
   }

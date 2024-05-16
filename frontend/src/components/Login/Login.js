@@ -2,7 +2,10 @@
 import { useState } from "react";
 import "./Login.scss";
 import { toast } from "react-toastify";
-import { handleUserLogin } from "../../services/authService";
+import {
+  handleRefreshToken,
+  handleUserLogin,
+} from "../../services/authService";
 import { useNavigate } from "react-router-dom";
 
 function Login() {
@@ -43,11 +46,11 @@ function Login() {
     let checkValid = isValidInputs();
     if (checkValid) {
       let response = await handleUserLogin(username, password);
-      let token = response.access_token;
+      let token = response.accesstoken;
       if (response.code) {
         toast.error(response.message);
       } else {
-        localStorage.setItem("jwt", token);
+        localStorage.setItem("accesstoken", token);
         navigate("/tasks");
         toast.success("Login successfully!");
       }

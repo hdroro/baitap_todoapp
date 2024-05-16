@@ -7,4 +7,10 @@ const handleUserLogin = (username, password) => {
   });
 };
 
-export { handleUserLogin };
+const handleRefreshToken = (refreshtoken) => {
+  return axios.post("/api/refresh", {
+    refreshtoken,
+  });
+};
+
+export { handleUserLogin, handleRefreshToken };
